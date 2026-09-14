@@ -23,7 +23,7 @@ static const twai_onchip_node_config_t NODE_CFG = {
 
 QueueHandle_t g_rx_queue;
 
-bool OnCanRxDone(twai_node_handle_t handle, const twai_rx_done_event_data_t *edata, void *user_ctx)
+bool OnCanRxDone(twai_node_handle_t handle, const twai_rx_done_event_data_t* edata, void* user_ctx)
 {
     (void)edata;
     (void)user_ctx;
@@ -36,8 +36,7 @@ bool OnCanRxDone(twai_node_handle_t handle, const twai_rx_done_event_data_t *eda
     };
 
     ret = twai_node_receive_from_isr(handle, &rx_frame);
-    if (ret != ESP_OK)
-    {
+    if (ret != ESP_OK) {
         return false;
     }
     msg.id = rx_frame.header.id;
@@ -48,32 +47,37 @@ bool OnCanRxDone(twai_node_handle_t handle, const twai_rx_done_event_data_t *eda
     return false;
 }
 
-void TaskCan(void *arg)
+void TaskCan(void* arg)
 {
     ESP_LOGI(LOG_TAG, "TaskCan started");
     (void)arg;
     CanMessage msg;
-    while (xQueueReceive(g_rx_queue, &msg, pdMS_TO_TICKS(10)) == pdTRUE)
-    {
-        if (msg.flag != 0xAA)
-        {
-            continue;
+    while (1) {
+        if (g_rx_queue != NULL) {
+            if (xQueueReceive(g_rx_queue, &msg, pdMS_TO_TICKS(10)) == pdTRUE) {
+                if (msg.flag != 0xAA) {
+                    continue;
+                }
+                VehicleInfoReceiveCan(&msg);
+            }
+        } else {
+            ESP_LOGE(LOG_TAG, "RX queue is NULL");
         }
-        VehicleInfoReceiveCan(&msg);
     }
 }
 
 esp_err_t InitCan()
 {
     g_rx_queue = xQueueCreate(RX_QUEUE_DEPTH, sizeof(CanMessage));
+    if (g_rx_queue == NULL) {
+        ESP_LOGE(LOG_TAG, "Failed to create RX queue");
+        return ESP_FAIL;
+    }
     esp_err_t ret = ESP_OK;
     ret = twai_new_node_onchip(&NODE_CFG, &g_node);
-    if (ret == ESP_OK)
-    {
+    if (ret == ESP_OK) {
         ESP_LOGI(LOG_TAG, "twai_new_node_onchip ok");
-    }
-    else
-    {
+    } else {
         ESP_LOGE(LOG_TAG, "twai_new_node_onchip failed");
         return ESP_FAIL;
     }
@@ -81,22 +85,16 @@ esp_err_t InitCan()
         .on_rx_done = OnCanRxDone,
     };
     ret = twai_node_register_event_callbacks(g_node, &cbs, NULL);
-    if (ret == ESP_OK)
-    {
+    if (ret == ESP_OK) {
         ESP_LOGI(LOG_TAG, "twai_node_register_event_callbacks ok");
-    }
-    else
-    {
+    } else {
         ESP_LOGE(LOG_TAG, "twai_node_register_event_callbacks failed");
         return ESP_FAIL;
     }
     ret = twai_node_enable(g_node);
-    if (ret == ESP_OK)
-    {
+    if (ret == ESP_OK) {
         ESP_LOGI(LOG_TAG, "twai_node_enable ok");
-    }
-    else
-    {
+    } else {
         ESP_LOGE(LOG_TAG, "twai_node_enable failed");
         return ESP_FAIL;
     }
@@ -107,22 +105,16 @@ esp_err_t DeinitCan()
 {
     esp_err_t ret = ESP_OK;
     ret = twai_node_disable(g_node);
-    if (ret == ESP_OK)
-    {
+    if (ret == ESP_OK) {
         ESP_LOGI(LOG_TAG, "twai_node_disable ok");
-    }
-    else
-    {
+    } else {
         ESP_LOGE(LOG_TAG, "twai_node_disable failed");
         return ESP_FAIL;
     }
     ret = twai_node_delete(g_node);
-    if (ret == ESP_OK)
-    {
+    if (ret == ESP_OK) {
         ESP_LOGI(LOG_TAG, "twai_node_delete ok");
-    }
-    else
-    {
+    } else {
         ESP_LOGE(LOG_TAG, "twai_node_delete failed");
         return ESP_FAIL;
     }
