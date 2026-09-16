@@ -98,12 +98,20 @@ void MeterInit(Meter* meter)
 
     meter->value = 0;
     meter->line_length = 800 * meter->cfg.size / 2 / 1000;
+    // 初始化指针位置和标签显示
+    lv_scale_set_line_needle_value(meter->scale, meter->line, meter->line_length, meter->value);
+    lv_label_set_text_fmt(meter->label, meter->cfg.label_fmt, meter->value);
 }
 
 void MeterSetValue(Meter* meter, int32_t value)
 {
     if (value == meter->value) {
         return;
+    }
+    if (value < meter->cfg.min_value) {
+        value = meter->cfg.min_value;
+    } else if (value > meter->cfg.max_value) {
+        value = meter->cfg.max_value;
     }
     lv_anim_set_values(&meter->anim, meter->value, value);
     lv_anim_start(&meter->anim);
@@ -123,7 +131,7 @@ Meter meter_speed = {
         .y = LCD_V_RES / 2 - 390 / 2,
         .size = 390,
         .min_value = 0,
-        .max_value = 160,
+        .max_value = 150,
         .major_tick = 10,
         .minor_tick = 5,
         .anim_duration = ANIM_DURATION_MS,
@@ -137,7 +145,7 @@ Meter meter_power = {
         .y = LCD_V_RES / 2 - 390 / 2,
         .size = 390,
         .min_value = -60,
-        .max_value = 120,
+        .max_value = 100,
         .major_tick = 10,
         .minor_tick = 5,
         .anim_duration = ANIM_DURATION_MS,
