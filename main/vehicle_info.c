@@ -30,3 +30,12 @@ void VehicleInfoReceiveCan(const CanMessage* msg)
     }
     }
 }
+
+esp_err_t InitVehicleInfo()
+{
+    g_vehicle_info.veh_spd = 0;
+    g_vehicle_info.ic_veh_spd = 0;
+    g_vehicle_info.eng_spd = 0;
+    g_vehicle_info.power = 0;
+    return ESP_OK;
+}

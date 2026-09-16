@@ -3,7 +3,7 @@
 #include "esp_log.h"
 #include "driver/gpio.h"
 
-static const char* TAG = "ws_lcd_4.3B";
+#define LOG_TAG "ws_lcd_4.3B"
 
 #define LCD_PIXEL_CLOCK_HZ      (16 * 1000 * 1000)
 
@@ -93,18 +93,18 @@ esp_err_t InitWsLcd(size_t num_fbs, esp_lcd_panel_handle_t* panel_handle)
 
     ret = esp_lcd_new_rgb_panel(&panel_config, panel_handle);
     if (ret == ESP_OK) {
-        ESP_LOGI(TAG, "esp_lcd_new_rgb_panel ok");
+        ESP_LOGI(LOG_TAG, "esp_lcd_new_rgb_panel ok");
     } else {
         *panel_handle = NULL;
-        ESP_LOGE(TAG, "esp_lcd_new_rgb_panel failed: %s", esp_err_to_name(ret));
+        ESP_LOGE(LOG_TAG, "esp_lcd_new_rgb_panel failed: %s", esp_err_to_name(ret));
         return ret;
     }
 
     ret = esp_lcd_panel_init(*panel_handle);
     if (ret == ESP_OK) {
-        ESP_LOGI(TAG, "esp_lcd_panel_init ok");
+        ESP_LOGI(LOG_TAG, "esp_lcd_panel_init ok");
     } else {
-        ESP_LOGE(TAG, "esp_lcd_panel_init failed: %s", esp_err_to_name(ret));
+        ESP_LOGE(LOG_TAG, "esp_lcd_panel_init failed: %s", esp_err_to_name(ret));
         return ret;
     }
     return ESP_OK;

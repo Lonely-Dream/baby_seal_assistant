@@ -2,6 +2,7 @@
 #define VEHICLE_INFO_H_
 
 #include <stdint.h>
+#include "esp_err.h"
 #include "can.h"
 
 struct VehicleInfo {
@@ -86,5 +87,6 @@ typedef union Msg3D9 Msg3D9;
 extern VehicleInfo g_vehicle_info;
 
 void VehicleInfoReceiveCan(const CanMessage* msg);
+esp_err_t InitVehicleInfo();
 
 #endif // VEHICLE_INFO_H_

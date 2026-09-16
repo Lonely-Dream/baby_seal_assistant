@@ -6,8 +6,7 @@
 #include "esp_err.h"
 
 
-struct CanMessage
-{
+struct CanMessage {
     uint32_t id;
     uint8_t dlc;
     uint8_t is_ext;
@@ -17,9 +16,11 @@ struct CanMessage
 };
 typedef struct CanMessage CanMessage;
 
+/// @brief 处理CAN任务
+/// @note 10ms调度
 esp_err_t InitCan();
 esp_err_t DeinitCan();
 
-void TaskCan(void * arg);
+void StepCan();
 
 #endif // CAN_H_
