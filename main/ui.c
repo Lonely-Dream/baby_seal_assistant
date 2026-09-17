@@ -8,8 +8,7 @@
 
 #define LOG_TAG "ui"
 
-#define METER_UPDATE_INTERVAL_MS 200
-#define ANIM_DURATION_MS METER_UPDATE_INTERVAL_MS
+#define ANIM_DURATION_MS 1000
 
 struct MeterConfig {
     int32_t x;
@@ -43,11 +42,13 @@ void MeterInit(Meter* meter)
 {
     static lv_style_t style_scale_items;
     static lv_style_t style_scale_indicator;
+    static lv_style_t style_label;
     static bool style_inited = false;
     if (!style_inited) {
         /*Init all styles*/
         lv_style_init(&style_scale_items);
         lv_style_init(&style_scale_indicator);
+        lv_style_init(&style_label);
 
         lv_style_set_length(&style_scale_items, 5);
         lv_style_set_line_color(&style_scale_items, lv_color_hex(0xFF8000));
@@ -55,6 +56,9 @@ void MeterInit(Meter* meter)
         lv_style_set_line_width(&style_scale_indicator, 3);
         lv_style_set_line_color(&style_scale_indicator, lv_color_hex(0xFF0000));
 
+        lv_style_set_text_color(&style_label, lv_color_hex(0xFF8000));
+        lv_style_set_text_font(&style_label, &lv_font_montserrat_42);
+        lv_style_set_text_align(&style_label, LV_TEXT_ALIGN_CENTER);
         style_inited = true;
     }
 
@@ -86,8 +90,9 @@ void MeterInit(Meter* meter)
 
     // 创建标签
     meter->label = lv_label_create(meter->scale);
+    lv_obj_add_style(meter->label, &style_label, LV_PART_MAIN);
     lv_obj_set_align(meter->label, LV_ALIGN_CENTER);
-    lv_obj_set_y(meter->label, 50);
+    lv_obj_set_y(meter->label, 100);
 
     // 创建圆弧
     // lv_obj_t* arc = lv_arc_create(scale);
@@ -136,7 +141,7 @@ Meter meter_speed = {
         .minor_tick = 5,
         .anim_duration = ANIM_DURATION_MS,
         .exec_cb = MeterAnimCallback,
-        .label_fmt = "Speed %d km/h",
+        .label_fmt = "%d\nkm/h",
     }
 };
 Meter meter_power = {
@@ -144,20 +149,20 @@ Meter meter_power = {
         .x = 400 + 8 / 2,
         .y = LCD_V_RES / 2 - 390 / 2,
         .size = 390,
-        .min_value = -60,
-        .max_value = 100,
+        .min_value = -70,
+        .max_value = 110,
         .major_tick = 10,
         .minor_tick = 5,
         .anim_duration = ANIM_DURATION_MS,
         .exec_cb = MeterAnimCallback,
-        .label_fmt = "Power %d kw",
+        .label_fmt = "%d\nkw",
     }
 };
 
 void StepUi()
 {
     if (esp_lv_adapter_lock(-1) == ESP_OK) {
-        MeterSetValue(&meter_speed, g_vehicle_info.veh_spd);
+        MeterSetValue(&meter_speed, g_vehicle_info.ic_veh_spd);
         MeterSetValue(&meter_power, g_vehicle_info.power);
         esp_lv_adapter_unlock();
     }
