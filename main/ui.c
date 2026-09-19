@@ -1,10 +1,13 @@
 #include "ui.h"
 
 #include <stdint.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "esp_lv_adapter.h"
 #include "esp_log.h"
 #include "ws_lcd_4.3B.h"
 #include "vehicle_info.h"
+#include "utils.h"
 
 #define LOG_TAG "ui"
 
@@ -14,21 +17,24 @@ struct MeterConfig {
     int32_t x;
     int32_t y;
     int32_t size;
+    int32_t init_value;
     int32_t min_value;
     int32_t max_value;
     uint32_t major_tick;
     uint32_t minor_tick;
+    /// @brief 动画持续时间
+    /// @note 单位: 毫秒
     uint32_t anim_duration;
     lv_anim_exec_xcb_t exec_cb;
-    const char* label_fmt;
+    const char* unit;
 };
 typedef struct MeterConfig MeterConfig;
 
 struct Meter {
     lv_obj_t* scale;
     lv_obj_t* line;
-    lv_obj_t* arc;
     lv_obj_t* label;
+    lv_obj_t* label_unit;
     lv_anim_t anim;
 
     MeterConfig cfg;
@@ -43,22 +49,43 @@ void MeterInit(Meter* meter)
     static lv_style_t style_scale_items;
     static lv_style_t style_scale_indicator;
     static lv_style_t style_label;
+    static lv_style_t style_label_unit;
+    static lv_style_t style_line_main;
+    static const lv_color_t text_color = {
+        .red = 0xFF,
+        .green = 0x80,
+        .blue = 0x00
+    };
     static bool style_inited = false;
     if (!style_inited) {
         /*Init all styles*/
         lv_style_init(&style_scale_items);
         lv_style_init(&style_scale_indicator);
         lv_style_init(&style_label);
+        lv_style_init(&style_line_main);
 
+        // 次刻度样式
         lv_style_set_length(&style_scale_items, 5);
-        lv_style_set_line_color(&style_scale_items, lv_color_hex(0xFF8000));
+        // 主刻度样式
         lv_style_set_length(&style_scale_indicator, 10);
         lv_style_set_line_width(&style_scale_indicator, 3);
         lv_style_set_line_color(&style_scale_indicator, lv_color_hex(0xFF0000));
-
-        lv_style_set_text_color(&style_label, lv_color_hex(0xFF8000));
-        lv_style_set_text_font(&style_label, &lv_font_montserrat_42);
+        lv_style_set_pad_radial(&style_scale_indicator, 15);
+        lv_style_set_text_color(&style_scale_indicator, text_color);
+        lv_style_set_text_font(&style_scale_indicator, &lv_font_montserrat_28);
+        // 单位标签样式(子级)
+        lv_style_set_align(&style_label_unit, LV_ALIGN_BOTTOM_MID);
+        lv_style_set_text_font(&style_label_unit, &lv_font_montserrat_16);
+        // 数值标签样式(父级)
+        lv_style_set_align(&style_label, LV_ALIGN_CENTER);
+        lv_style_set_y(&style_label, 100);
+        lv_style_set_text_color(&style_label, text_color);
         lv_style_set_text_align(&style_label, LV_TEXT_ALIGN_CENTER);
+        lv_style_set_text_font(&style_label, &lv_font_montserrat_48);
+        lv_style_set_height(&style_label, 16 + 48);
+        // 指针样式
+        lv_style_set_line_width(&style_line_main, 4);
+        lv_style_set_line_rounded(&style_line_main, true);
         style_inited = true;
     }
 
@@ -79,8 +106,7 @@ void MeterInit(Meter* meter)
 
     // 创建指针
     meter->line = lv_line_create(meter->scale);
-    lv_obj_set_style_line_width(meter->line, 4, LV_PART_MAIN);
-    lv_obj_set_style_line_rounded(meter->line, true, LV_PART_MAIN);
+    lv_obj_add_style(meter->line, &style_line_main, LV_PART_MAIN);
 
     lv_anim_init(&meter->anim);
     lv_anim_set_var(&meter->anim, meter); // 设置要应用动画的组件
@@ -91,21 +117,16 @@ void MeterInit(Meter* meter)
     // 创建标签
     meter->label = lv_label_create(meter->scale);
     lv_obj_add_style(meter->label, &style_label, LV_PART_MAIN);
-    lv_obj_set_align(meter->label, LV_ALIGN_CENTER);
-    lv_obj_set_y(meter->label, 100);
+    meter->label_unit = lv_label_create(meter->label);
+    lv_obj_add_style(meter->label_unit, &style_label_unit, LV_PART_MAIN);
 
-    // 创建圆弧
-    // lv_obj_t* arc = lv_arc_create(scale);
-    // lv_obj_set_size(arc,256,256);
-    // lv_arc_set_min_value(arc,0);
-    // lv_arc_set_max_value(arc,160);
-    // lv_arc_set_value(arc, n);
-
-    meter->value = 0;
-    meter->line_length = 800 * meter->cfg.size / 2 / 1000;
+    meter->value = meter->cfg.init_value;
+    // meter->line_length = 1000 * meter->cfg.size / 2 / 1618;
+    meter->line_length = meter->cfg.size / 2 - 10 - 5;
     // 初始化指针位置和标签显示
     lv_scale_set_line_needle_value(meter->scale, meter->line, meter->line_length, meter->value);
-    lv_label_set_text_fmt(meter->label, meter->cfg.label_fmt, meter->value);
+    lv_label_set_text(meter->label, "--");
+    lv_label_set_text(meter->label_unit, meter->cfg.unit);
 }
 
 void MeterSetValue(Meter* meter, int32_t value)
@@ -127,7 +148,7 @@ void MeterAnimCallback(void* obj, int32_t value)
 {
     Meter* meter = (Meter*)obj;
     lv_scale_set_line_needle_value(meter->scale, meter->line, meter->line_length, value);
-    lv_label_set_text_fmt(meter->label, meter->cfg.label_fmt, value);
+    lv_label_set_text_fmt(meter->label, "%" PRId32, value);
 }
 
 Meter meter_speed = {
@@ -135,13 +156,14 @@ Meter meter_speed = {
         .x = 6,
         .y = LCD_V_RES / 2 - 390 / 2,
         .size = 390,
+        .init_value = 0,
         .min_value = 0,
-        .max_value = 150,
-        .major_tick = 10,
+        .max_value = 160,
+        .major_tick = 20,
         .minor_tick = 5,
         .anim_duration = ANIM_DURATION_MS,
         .exec_cb = MeterAnimCallback,
-        .label_fmt = "%d\nkm/h",
+        .unit = "km/h",
     }
 };
 Meter meter_power = {
@@ -149,15 +171,45 @@ Meter meter_power = {
         .x = 400 + 8 / 2,
         .y = LCD_V_RES / 2 - 390 / 2,
         .size = 390,
-        .min_value = -70,
-        .max_value = 110,
-        .major_tick = 10,
+        .init_value = 0,
+        .min_value = -60,
+        .max_value = 100,
+        .major_tick = 20,
         .minor_tick = 5,
         .anim_duration = ANIM_DURATION_MS,
         .exec_cb = MeterAnimCallback,
-        .label_fmt = "%d\nkw",
+        .unit = "kw",
     }
 };
+
+void SelfCheckUi()
+{
+    const TickType_t MAX_ANIM_DURATION = pdMS_TO_TICKS(MAX(
+        meter_speed.cfg.anim_duration,
+        meter_power.cfg.anim_duration));
+
+    // Perform self-check for UI components
+    if (esp_lv_adapter_lock(-1) == ESP_OK) {
+        MeterSetValue(&meter_speed, meter_speed.cfg.max_value);
+        MeterSetValue(&meter_power, meter_power.cfg.max_value);
+        esp_lv_adapter_unlock();
+    }
+    vTaskDelay(MAX_ANIM_DURATION);
+
+    if (esp_lv_adapter_lock(-1) == ESP_OK) {
+        MeterSetValue(&meter_speed, meter_speed.cfg.min_value);
+        MeterSetValue(&meter_power, meter_power.cfg.min_value);
+        esp_lv_adapter_unlock();
+    }
+    vTaskDelay(MAX_ANIM_DURATION);
+
+    if (esp_lv_adapter_lock(-1) == ESP_OK) {
+        MeterSetValue(&meter_speed, meter_speed.cfg.init_value);
+        MeterSetValue(&meter_power, meter_power.cfg.init_value);
+        esp_lv_adapter_unlock();
+    }
+    vTaskDelay(MAX_ANIM_DURATION);
+}
 
 void StepUi()
 {

@@ -4,6 +4,7 @@
 
 #include "esp_err.h"
 
+void SelfCheckUi();
 void StepUi();
 esp_err_t InitUi();
 

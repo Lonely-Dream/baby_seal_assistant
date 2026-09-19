@@ -7,6 +7,11 @@
 
 #define LOG_TAG "main"
 
+void SelfCheck()
+{
+    SelfCheckUi();
+}
+
 void Task100ms(void* arg)
 {
     TickType_t xLastWakeTime;
@@ -52,6 +57,9 @@ void app_main(void)
         ESP_LOGE(LOG_TAG, "UI initialization failed: %s", esp_err_to_name(esp_ret));
         return;
     }
+
+    // Self-check
+    SelfCheck();
 
     os_ret = xTaskCreate(
         Task100ms,              // 任务函数
