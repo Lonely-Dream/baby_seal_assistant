@@ -49,7 +49,7 @@ static bool OnCanRxDone(twai_node_handle_t handle, const twai_rx_done_event_data
     return false;
 }
 
-static void ProcessTx()
+void ProcessCanTx()
 {
     if (g_node == NULL) {
         return;
@@ -72,15 +72,7 @@ static void ProcessTx()
 /// @note 10ms调度
 void StepCan()
 {
-    static size_t cnt_tx = 0;
     CanMessage msg;
-    if (cnt_tx >= 1000) {
-        cnt_tx = 0;
-        ProcessTx();
-    } else {
-        cnt_tx += 10;
-    }
-
     if (g_rx_queue == NULL) {
         ESP_LOGE(LOG_TAG, "RX queue is NULL");
         return;

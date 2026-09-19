@@ -5,6 +5,11 @@
 #include "esp_err.h"
 
 void SelfCheckUi();
+/// @brief 统计fps
+/// @note 1000ms调度
+void StatUi();
+/// @brief ui更新任务
+/// @note 10ms调度
 void StepUi();
 esp_err_t InitUi();
 

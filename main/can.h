@@ -16,11 +16,14 @@ struct CanMessage {
 };
 typedef struct CanMessage CanMessage;
 
-/// @brief 处理CAN任务
-/// @note 10ms调度
+/// @brief 处理CAN tx任务
+/// @note 1000ms调度
+void ProcessCanTx();
 esp_err_t InitCan();
 esp_err_t DeinitCan();
 
+/// @brief 处理CAN任务
+/// @note 10ms调度
 void StepCan();
 
 #endif // CAN_H_

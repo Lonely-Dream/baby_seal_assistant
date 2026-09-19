@@ -12,7 +12,7 @@ void SelfCheck()
     SelfCheckUi();
 }
 
-void Task100ms(void* arg)
+void Task1000ms(void* arg)
 {
     TickType_t xLastWakeTime;
     BaseType_t xWasDelayed;
@@ -20,10 +20,11 @@ void Task100ms(void* arg)
     // Initialise the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
     for (;;) {
-        /// @todo add custom tasks here
+        ProcessCanTx();
+        StatUi();
 
         // Wait for the next cycle.
-        xWasDelayed = xTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(100));
+        xWasDelayed = xTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(1000));
 
         // Perform action here. xWasDelayed value can be used to determine
         // whether a deadline was missed if the code here took too long.
@@ -62,15 +63,15 @@ void app_main(void)
     SelfCheck();
 
     os_ret = xTaskCreate(
-        Task100ms,              // 任务函数
-        "Task100ms",            // 任务名称
+        Task1000ms,              // 任务函数
+        "Task1000ms",            // 任务名称
         2048,                   // 任务堆栈大小
         NULL,                   // 任务参数
         tskIDLE_PRIORITY + 2,   // 任务优先级
         NULL                    // 任务句柄
     );
     if (os_ret != pdPASS) {
-        ESP_LOGE(LOG_TAG, "Failed to create Task100ms task");
+        ESP_LOGE(LOG_TAG, "Failed to create Task1000ms task");
         return;
     }
 
