@@ -86,6 +86,7 @@ typedef union Msg3D9 Msg3D9;
 
 extern VehicleInfo g_vehicle_info;
 
+bool IsRequiredMessage(uint32_t id);
 void VehicleInfoReceiveCan(const CanMessage* msg);
 esp_err_t InitVehicleInfo();
 

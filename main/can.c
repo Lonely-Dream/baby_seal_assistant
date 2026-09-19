@@ -38,6 +38,9 @@ static bool OnCanRxDone(twai_node_handle_t handle, const twai_rx_done_event_data
     if (ret != ESP_OK) {
         return false;
     }
+    if (!IsRequiredMessage(rx_frame.header.id)) {
+        return false;
+    }
     msg.id = rx_frame.header.id;
     msg.is_ext = rx_frame.header.ide;
     msg.dlc = rx_frame.header.dlc;

@@ -6,6 +6,17 @@ VehicleInfo g_vehicle_info;
 
 static Msg3D9 g_msg_3d9;
 
+bool IsRequiredMessage(uint32_t id)
+{
+    switch (id) {
+    case 0x238:
+    case 0x3D9:
+        return true;
+    default:
+        return false;
+    }
+}
+
 void VehicleInfoReceiveCan(const CanMessage* msg)
 {
     switch (msg->id) {
