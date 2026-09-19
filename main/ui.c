@@ -23,6 +23,7 @@ void MeterAnimCallback(void* obj, int32_t value)
 }
 
 lv_display_t* g_disp;
+lv_indev_t* g_touch;
 Meter meter_speed = {
     .cfg = {
         .x = 6,
@@ -113,7 +114,8 @@ esp_err_t InitUi()
     );
     ESP_LOGI(LOG_TAG, "num_fbs=%hhu", num_fbs);
     esp_lcd_panel_handle_t panel_handle = NULL;
-    esp_err_t esp_ret = InitWsLcd(num_fbs, &panel_handle);
+    esp_lcd_touch_handle_t touch_handle = NULL;
+    esp_err_t esp_ret = InitWsLcd(num_fbs, &panel_handle, &touch_handle);
     if (esp_ret == ESP_OK) {
         ESP_LOGI(LOG_TAG, "LCD initialized");
     } else {
@@ -134,6 +136,13 @@ esp_err_t InitUi()
     g_disp = esp_lv_adapter_register_display(&disp_cfg);
     assert(g_disp != NULL);
 
+    esp_lv_adapter_touch_config_t touch_cfg = ESP_LV_ADAPTER_TOUCH_DEFAULT_CONFIG(
+        g_disp,
+        touch_handle
+    );
+    g_touch = esp_lv_adapter_register_touch(&touch_cfg);
+    assert(g_touch != NULL);
+
     g_label_fps = lv_label_create(lv_scr_act());
     lv_obj_set_align(g_label_fps, LV_ALIGN_TOP_RIGHT);
 
@@ -145,7 +154,7 @@ esp_err_t InitUi()
     if (esp_ret == ESP_OK) {
         ESP_LOGI(LOG_TAG, "esp_lv_adapter_fps_stats_enable ok");
     } else {
-        ESP_LOGE(LOG_TAG, "LCD esp_lv_adapter_fps_stats_enable failed: %s", esp_err_to_name(esp_ret));
+        ESP_LOGE(LOG_TAG, "esp_lv_adapter_fps_stats_enable failed: %s", esp_err_to_name(esp_ret));
     }
     return ESP_OK;
 }
