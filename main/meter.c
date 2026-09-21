@@ -1,7 +1,7 @@
 #include "meter.h"
 
 
-void MeterInit(Meter* meter)
+void MeterInit(Meter* meter, lv_obj_t* parent)
 {
     static lv_style_t style_scale_items;
     static lv_style_t style_scale_indicator;
@@ -47,7 +47,7 @@ void MeterInit(Meter* meter)
     }
 
     // 创建刻度
-    meter->scale = lv_scale_create(lv_screen_active());
+    meter->scale = lv_scale_create(parent);
     lv_obj_set_size(meter->scale, meter->cfg.size, meter->cfg.size);
     lv_obj_set_pos(meter->scale, meter->cfg.x, meter->cfg.y);
     lv_obj_add_style(meter->scale, &style_scale_items, LV_PART_ITEMS);

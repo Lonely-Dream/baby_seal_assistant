@@ -45,8 +45,10 @@ static bool OnCanRxDone(twai_node_handle_t handle, const twai_rx_done_event_data
     msg.is_ext = rx_frame.header.ide;
     msg.dlc = rx_frame.header.dlc;
     msg.flag = 0xAA;
-    xQueueSendFromISR(g_rx_queue, &msg, &xHigherPriorityTaskWoken);
-    return false;
+    if (xQueueSendFromISR(g_rx_queue, &msg, &xHigherPriorityTaskWoken) != pdPASS) {
+        return false;
+    }
+    return xHigherPriorityTaskWoken == pdTRUE;
 }
 
 void ProcessCanTx()
@@ -78,9 +80,9 @@ void StepCan()
         return;
     }
 
-    if (xQueueReceive(g_rx_queue, &msg, 0) == pdTRUE) {
+    while (xQueueReceive(g_rx_queue, &msg, 0) == pdTRUE) {
         if (msg.flag != 0xAA) {
-            return;
+            continue;
         }
         VehicleInfoReceiveCan(&msg);
     }

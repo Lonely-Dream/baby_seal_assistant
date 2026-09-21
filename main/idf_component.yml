@@ -16,3 +16,4 @@ dependencies:
   #   public: true
   espressif/esp_lvgl_adapter: ^0.6.4
   espressif/esp_lcd_touch_gt911: '*'
+  txp666/lvgl-nav-kit: '*'

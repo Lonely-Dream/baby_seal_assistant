@@ -1,5 +1,14 @@
 idf_component_register(
-    SRCS "ui.c" "meter.c" "can.c" "main.c" "ws_lcd_4.3B.c" "vehicle_info.c"
+    SRCS
+        "main.cpp"
+        "ui.c"
+        "meter.c"
+        "can.c"
+        "ws_lcd_4.3B.c"
+        "vehicle_info.c"
+        "page/vehicle_meter_page.cpp"
+        "page/speed_page.cpp"
+        "page/power_page.cpp"
     INCLUDE_DIRS "."
     PRIV_REQUIRES esp_lcd
     PRIV_REQUIRES esp_driver_twai

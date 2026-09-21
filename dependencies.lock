@@ -257,10 +257,22 @@ dependencies:
       registry_url: https://components.espressif.com
       type: service
     version: 9.6.0~1
+  txp666/lvgl-nav-kit:
+    component_hash: 9ca71a3769fd61e99d75082e3e95f43a4f0ab1b510599f9774becc27b2dee5b7
+    dependencies:
+    - name: lvgl/lvgl
+      registry_url: https://components.espressif.com
+      require: private
+      version: '>=9.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.2.7
 direct_dependencies:
 - espressif/esp_lcd_touch_gt911
 - espressif/esp_lvgl_adapter
 - idf
-manifest_hash: 2b58b3306d0a5eedb26143425bb0cb9a57d64f6779ea0af4e836e5ab29f2aa1f
+- txp666/lvgl-nav-kit
+manifest_hash: 257ba8b46ffde0457f1521cea3518dfa52c6b87ca6e43dea0c1d122bec7da61e
 target: esp32s3
 version: 3.0.0
