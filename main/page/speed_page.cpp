@@ -3,7 +3,13 @@
 SpeedPage::SpeedPage()
     : VehicleMeterPage(
         PAGE_ID,
-        VehicleMeterPageConfig{ 160, 0, 480, 0, 0, 160, 20, 5, "km/h" },
+        VehicleMeterPageConfig{
+            .x = 160, .y = 25,
+            .size = 480, .init_value = 0, .min_value = 0, .max_value = 160,
+            .major_tick = 20, .minor_tick = 5,
+            .unit = "km/h\nSpeed",
+            .custom_tick_label = nullptr,
+        },
         VEHICLE_INFO_VALID_IC_VEHICLE_SPEED)
 { }
 

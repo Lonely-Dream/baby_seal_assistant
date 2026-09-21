@@ -21,7 +21,11 @@ extern "C" {
         /// @note 单位: 毫秒
         uint32_t anim_duration;
         lv_anim_exec_xcb_t exec_cb;
+        /// @brief 单位和描述
         const char* unit;
+        /// @brief 自定义刻度标签
+        /// @note 如果为空，则使用默认刻度标签
+        const char** custom_tick_label;
     };
     typedef struct MeterConfig MeterConfig;
 

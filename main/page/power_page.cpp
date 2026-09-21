@@ -3,7 +3,14 @@
 PowerPage::PowerPage()
     : VehicleMeterPage(
         PAGE_ID,
-        VehicleMeterPageConfig{ 160, 0, 480, 0, -60, 100, 20, 5, "kW" },
+        VehicleMeterPageConfig{
+            .x = 160, .y = 25,
+            .size = 480,
+            .init_value = 0, .min_value = -60, .max_value = 100,
+            .major_tick = 20, .minor_tick = 5,
+            .unit = "kW\nPower",
+            .custom_tick_label = nullptr,
+        },
         VEHICLE_INFO_VALID_POWER)
 { }
 

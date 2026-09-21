@@ -25,6 +25,7 @@ void VehicleMeterPage::OnCreate(lv_obj_t* parent)
         kMeterAnimationDurationMs,
         MeterAnimCallback,
         config_.unit,
+        config_.custom_tick_label,
     };
     MeterInit(&meter_, parent);
 }

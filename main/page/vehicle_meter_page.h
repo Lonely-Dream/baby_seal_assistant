@@ -16,6 +16,7 @@ struct VehicleMeterPageConfig {
     uint32_t major_tick;
     uint32_t minor_tick;
     const char* unit;
+    const char** custom_tick_label;
 };
 
 class VehicleMeterPage : public ui::PageBase {

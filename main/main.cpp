@@ -8,6 +8,7 @@
 #include "lvgl_nav_kit/page_registry.h"
 #include "page/speed_page.h"
 #include "page/power_page.h"
+#include "page/engine_speed_page.hpp"
 
 #define LOG_TAG "main"
 
@@ -66,20 +67,21 @@ extern "C" void app_main()
 
     auto& mgr = ui::UIManager::GetInstance();
     mgr.Initialize(lv_scr_act(), nullptr);
-    mgr.SetTransitionDuration(1000);
+    mgr.SetTransitionDuration(500);
     mgr.SetMaxCachedPages(1);
     auto& reg = mgr.GetRegistry();
     auto* speed_page = new SpeedPage();
     auto* power_page = new PowerPage();
+    auto* engine_speed_page = new EngineSpeedPage();
     reg.RegisterPage(speed_page);
     reg.RegisterPage(power_page);
-
+    reg.RegisterPage(engine_speed_page);
 
     reg.SetNavigation(
         speed_page->PAGE_ID,
         ui::PageNavigation{
             .left = { power_page->PAGE_ID, ui::Direction::Left },
-            .right = { },
+            .right = { engine_speed_page->PAGE_ID, ui::Direction::Right },
             .up = { },
             .down = { },
         });
@@ -88,6 +90,14 @@ extern "C" void app_main()
         ui::PageNavigation{
             .left = { },
             .right = { speed_page->PAGE_ID, ui::Direction::Right },
+            .up = { },
+            .down = { },
+        });
+    reg.SetNavigation(
+        engine_speed_page->PAGE_ID,
+        ui::PageNavigation{
+            .left = { speed_page->PAGE_ID, ui::Direction::Left },
+            .right = { },
             .up = { },
             .down = { },
         });

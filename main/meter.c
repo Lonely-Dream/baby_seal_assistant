@@ -1,5 +1,7 @@
 #include "meter.h"
 
+#define MAJOR_TICK_LENGTH (10)
+#define MINOR_TICK_LENGTH (5)
 
 void MeterInit(Meter* meter, lv_obj_t* parent)
 {
@@ -22,9 +24,9 @@ void MeterInit(Meter* meter, lv_obj_t* parent)
         lv_style_init(&style_line_main);
 
         // 次刻度样式
-        lv_style_set_length(&style_scale_items, 5);
+        lv_style_set_length(&style_scale_items, MINOR_TICK_LENGTH);
         // 主刻度样式
-        lv_style_set_length(&style_scale_indicator, 10);
+        lv_style_set_length(&style_scale_indicator, MAJOR_TICK_LENGTH);
         lv_style_set_line_width(&style_scale_indicator, 3);
         lv_style_set_line_color(&style_scale_indicator, lv_color_hex(0xFF0000));
         lv_style_set_pad_radial(&style_scale_indicator, 15);
@@ -39,7 +41,7 @@ void MeterInit(Meter* meter, lv_obj_t* parent)
         lv_style_set_text_color(&style_label, text_color);
         lv_style_set_text_align(&style_label, LV_TEXT_ALIGN_CENTER);
         lv_style_set_text_font(&style_label, &lv_font_montserrat_48);
-        lv_style_set_height(&style_label, 16 + 48);
+        lv_style_set_height(&style_label, 16 * 2 + 48);
         // 指针样式
         lv_style_set_line_width(&style_line_main, 4);
         lv_style_set_line_rounded(&style_line_main, true);
@@ -60,6 +62,9 @@ void MeterInit(Meter* meter, lv_obj_t* parent)
     meter->range = meter->cfg.max_value - meter->cfg.min_value;
     lv_scale_set_total_tick_count(meter->scale, meter->range / meter->cfg.minor_tick + 1);
     lv_scale_set_major_tick_every(meter->scale, meter->cfg.major_tick / meter->cfg.minor_tick);
+    if (meter->cfg.custom_tick_label != NULL) {
+        lv_scale_set_text_src(meter->scale, meter->cfg.custom_tick_label);
+    }
 
     // 创建指针
     meter->line = lv_line_create(meter->scale);
@@ -79,7 +84,7 @@ void MeterInit(Meter* meter, lv_obj_t* parent)
 
     meter->value = meter->cfg.init_value;
     // meter->line_length = 1000 * meter->cfg.size / 2 / 1618;
-    meter->line_length = meter->cfg.size / 2 - 10 - 5;
+    meter->line_length = meter->cfg.size / 2 - MAJOR_TICK_LENGTH - 5;
     // 初始化指针位置和标签显示
     lv_scale_set_line_needle_value(meter->scale, meter->line, meter->line_length, meter->value);
     lv_label_set_text(meter->label, "--");
