@@ -13,21 +13,13 @@ void MeterInit(Meter* meter, lv_obj_t* parent)
     static lv_style_t style_label;
     static lv_style_t style_label_unit;
     static lv_style_t style_line_main;
-    static const lv_color_t ORANGE_COLOR = {
-        .red = 0xFF,
-        .green = 0x80,
-        .blue = 0x00
-    };
-    static const lv_color_t RED_COLOR = {
-        .red = 0xF6,
-        .green = 0x21,
-        .blue = 0x21
-    };
-    static const lv_color_t WHITE_COLOR = {
-        .red = 0xB8,
-        .green = 0xC2,
-        .blue = 0xC5
-    };
+    static const lv_color_t PRIMARY_VALUE_COLOR = RGB(0xFF9A00);
+    static const lv_color_t TICK_VALUE_COLOR = RGB(0xFF8000);
+    static const lv_color_t MAJOR_TICK_COLOR = RGB(0xB8C2C5);
+    static const lv_color_t MINOR_TICK_COLOR = RGB(0x687276);
+    static const lv_color_t LINE_COLOR = RGB(0xF62121);
+    static const lv_color_t TEXT_COLOR = RGB(0xB8C2C5);
+    static const lv_color_t CIRCLE_COLOR = RGB(0x7F898D);
     static bool style_inited = false;
     if (!style_inited) {
         lv_style_init(&style_scale_items);
@@ -39,33 +31,33 @@ void MeterInit(Meter* meter, lv_obj_t* parent)
 
         // 次刻度样式
         lv_style_set_length(&style_scale_items, MINOR_TICK_LENGTH);
-        lv_style_set_line_color(&style_scale_items, WHITE_COLOR);
+        lv_style_set_line_color(&style_scale_items, MINOR_TICK_COLOR);
         // 主刻度样式
         lv_style_set_length(&style_scale_indicator, MAJOR_TICK_LENGTH);
         lv_style_set_line_width(&style_scale_indicator, 2);
-        lv_style_set_line_color(&style_scale_indicator, RED_COLOR);
+        lv_style_set_line_color(&style_scale_indicator, MAJOR_TICK_COLOR);
         lv_style_set_pad_radial(&style_scale_indicator, 15);
-        lv_style_set_text_color(&style_scale_indicator, ORANGE_COLOR);
+        lv_style_set_text_color(&style_scale_indicator, TICK_VALUE_COLOR);
         lv_style_set_text_font(&style_scale_indicator, &lv_font_montserrat_28);
         // 主样式
         lv_style_set_arc_width(&style_scale_main, 2);
-        lv_style_set_arc_color(&style_scale_main, WHITE_COLOR);
+        lv_style_set_arc_color(&style_scale_main, CIRCLE_COLOR);
         lv_style_set_bg_opa(&style_scale_main, LV_OPA_TRANSP);
         lv_style_set_border_opa(&style_scale_main, LV_OPA_TRANSP);
         // 单位标签样式(子级)
         lv_style_set_align(&style_label_unit, LV_ALIGN_BOTTOM_MID);
-        lv_style_set_text_color(&style_label_unit, WHITE_COLOR);
+        lv_style_set_text_color(&style_label_unit, TEXT_COLOR);
         lv_style_set_text_font(&style_label_unit, &lv_font_montserrat_16);
         // 数值标签样式(父级)
         lv_style_set_align(&style_label, LV_ALIGN_CENTER);
         lv_style_set_y(&style_label, 100);
-        lv_style_set_text_color(&style_label, ORANGE_COLOR);
+        lv_style_set_text_color(&style_label, PRIMARY_VALUE_COLOR);
         lv_style_set_text_align(&style_label, LV_TEXT_ALIGN_CENTER);
         lv_style_set_text_font(&style_label, &lv_font_montserrat_48);
         lv_style_set_height(&style_label, 16 * 2 + 48);
         // 指针样式
-        lv_style_set_line_width(&style_line_main, 4);
-        lv_style_set_line_color(&style_line_main, RED_COLOR);
+        lv_style_set_line_width(&style_line_main, 2);
+        lv_style_set_line_color(&style_line_main, LINE_COLOR);
         lv_style_set_line_rounded(&style_line_main, true);
         style_inited = true;
     }

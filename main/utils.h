@@ -10,6 +10,7 @@ extern "C" {
 
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
+#define RGB(c) { .red = ((c) >> 16) & 0xFF, .green = ((c) >> 8) & 0xFF, .blue = (c) & 0xFF }
 
     /// @brief 线性插值函数
     /// @param out_min 输出范围最小值
