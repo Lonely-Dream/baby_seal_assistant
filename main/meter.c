@@ -2,50 +2,70 @@
 
 #include "utils.h"
 
-#define MAJOR_TICK_LENGTH (10)
-#define MINOR_TICK_LENGTH (5)
+#define MAJOR_TICK_LENGTH (13)
+#define MINOR_TICK_LENGTH (7)
 
 void MeterInit(Meter* meter, lv_obj_t* parent)
 {
     static lv_style_t style_scale_items;
     static lv_style_t style_scale_indicator;
+    static lv_style_t style_scale_main;
     static lv_style_t style_label;
     static lv_style_t style_label_unit;
     static lv_style_t style_line_main;
-    static const lv_color_t text_color = {
+    static const lv_color_t ORANGE_COLOR = {
         .red = 0xFF,
         .green = 0x80,
         .blue = 0x00
     };
+    static const lv_color_t RED_COLOR = {
+        .red = 0xF6,
+        .green = 0x21,
+        .blue = 0x21
+    };
+    static const lv_color_t WHITE_COLOR = {
+        .red = 0xB8,
+        .green = 0xC2,
+        .blue = 0xC5
+    };
     static bool style_inited = false;
     if (!style_inited) {
-        /*Init all styles*/
         lv_style_init(&style_scale_items);
         lv_style_init(&style_scale_indicator);
+        lv_style_init(&style_scale_main);
         lv_style_init(&style_label);
         lv_style_init(&style_line_main);
+        lv_style_init(&style_label_unit);
 
         // 次刻度样式
         lv_style_set_length(&style_scale_items, MINOR_TICK_LENGTH);
+        lv_style_set_line_color(&style_scale_items, WHITE_COLOR);
         // 主刻度样式
         lv_style_set_length(&style_scale_indicator, MAJOR_TICK_LENGTH);
-        lv_style_set_line_width(&style_scale_indicator, 3);
-        lv_style_set_line_color(&style_scale_indicator, lv_color_hex(0xFF0000));
+        lv_style_set_line_width(&style_scale_indicator, 2);
+        lv_style_set_line_color(&style_scale_indicator, RED_COLOR);
         lv_style_set_pad_radial(&style_scale_indicator, 15);
-        lv_style_set_text_color(&style_scale_indicator, text_color);
+        lv_style_set_text_color(&style_scale_indicator, ORANGE_COLOR);
         lv_style_set_text_font(&style_scale_indicator, &lv_font_montserrat_28);
+        // 主样式
+        lv_style_set_arc_width(&style_scale_main, 2);
+        lv_style_set_arc_color(&style_scale_main, WHITE_COLOR);
+        lv_style_set_bg_opa(&style_scale_main, LV_OPA_TRANSP);
+        lv_style_set_border_opa(&style_scale_main, LV_OPA_TRANSP);
         // 单位标签样式(子级)
         lv_style_set_align(&style_label_unit, LV_ALIGN_BOTTOM_MID);
+        lv_style_set_text_color(&style_label_unit, WHITE_COLOR);
         lv_style_set_text_font(&style_label_unit, &lv_font_montserrat_16);
         // 数值标签样式(父级)
         lv_style_set_align(&style_label, LV_ALIGN_CENTER);
         lv_style_set_y(&style_label, 100);
-        lv_style_set_text_color(&style_label, text_color);
+        lv_style_set_text_color(&style_label, ORANGE_COLOR);
         lv_style_set_text_align(&style_label, LV_TEXT_ALIGN_CENTER);
         lv_style_set_text_font(&style_label, &lv_font_montserrat_48);
         lv_style_set_height(&style_label, 16 * 2 + 48);
         // 指针样式
         lv_style_set_line_width(&style_line_main, 4);
+        lv_style_set_line_color(&style_line_main, RED_COLOR);
         lv_style_set_line_rounded(&style_line_main, true);
         style_inited = true;
     }
@@ -54,6 +74,7 @@ void MeterInit(Meter* meter, lv_obj_t* parent)
     meter->scale = lv_scale_create(parent);
     lv_obj_set_size(meter->scale, meter->cfg.size, meter->cfg.size);
     lv_obj_set_pos(meter->scale, meter->cfg.x, meter->cfg.y);
+    lv_obj_add_style(meter->scale, &style_scale_main, LV_PART_MAIN);
     lv_obj_add_style(meter->scale, &style_scale_items, LV_PART_ITEMS);
     lv_obj_add_style(meter->scale, &style_scale_indicator, LV_PART_INDICATOR);
 
