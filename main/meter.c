@@ -1,5 +1,7 @@
 #include "meter.h"
 
+#include "utils.h"
+
 #define MAJOR_TICK_LENGTH (10)
 #define MINOR_TICK_LENGTH (5)
 
@@ -73,7 +75,6 @@ void MeterInit(Meter* meter, lv_obj_t* parent)
     lv_anim_init(&meter->anim);
     lv_anim_set_var(&meter->anim, meter); // 设置要应用动画的组件
     lv_anim_set_exec_cb(&meter->anim, meter->cfg.exec_cb);
-    lv_anim_set_duration(&meter->anim, meter->cfg.anim_duration); // 动画持续时间ms
     lv_anim_set_repeat_count(&meter->anim, 1);
 
     // 创建标签
@@ -101,6 +102,20 @@ void MeterSetValue(Meter* meter, int32_t value)
     } else if (value > meter->cfg.max_value) {
         value = meter->cfg.max_value;
     }
+    // 根据变化的幅度计算动画持续时间
+    int64_t value_delta = (int64_t)value - meter->value;
+    if (value_delta < 0) {
+        value_delta = -value_delta;
+    }
+    if (value_delta > meter->range) {
+        value_delta = meter->range;
+    }
+    uint32_t anim_duration = Lerp(
+        meter->cfg.min_anim_duration, meter->cfg.max_anim_duration,
+        0, meter->range,
+        (int32_t)value_delta
+    );
+    lv_anim_set_duration(&meter->anim, anim_duration);
     lv_anim_set_values(&meter->anim, meter->value, value);
     lv_anim_start(&meter->anim);
     meter->value = value;

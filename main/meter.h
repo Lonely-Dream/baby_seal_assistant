@@ -17,9 +17,12 @@ extern "C" {
         int32_t max_value;
         uint32_t major_tick;
         uint32_t minor_tick;
-        /// @brief 动画持续时间
+        /// @brief 最短动画持续时间
         /// @note 单位: 毫秒
-        uint32_t anim_duration;
+        uint32_t min_anim_duration;
+        /// @brief 最长动画持续时间
+        /// @note 单位: 毫秒
+        uint32_t max_anim_duration;
         lv_anim_exec_xcb_t exec_cb;
         /// @brief 单位和描述
         const char* unit;

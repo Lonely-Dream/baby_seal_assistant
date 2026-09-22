@@ -96,6 +96,7 @@ extern "C" {
 
 #pragma pack()
 
+    void MockVehicleInfoReceive(const VehicleInfo* info);
     bool IsRequiredMessage(uint32_t id);
     void VehicleInfoReceiveCan(const CanMessage* msg);
     bool VehicleInfoGetSnapshot(VehicleInfo* snapshot);

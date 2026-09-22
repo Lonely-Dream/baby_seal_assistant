@@ -9,6 +9,7 @@
 #include "page/speed_page.h"
 #include "page/power_page.h"
 #include "page/engine_speed_page.hpp"
+#include "esp_random.h"
 
 #define LOG_TAG "main"
 
@@ -22,12 +23,24 @@ static void TaskCanRx(void* arg)
     }
 }
 
+static void MockVehicleInfo()
+{
+    VehicleInfo info;
+    info.valid_mask = 0xFFFFFFFF;
+    info.veh_spd = esp_random() % 160;
+    info.ic_veh_spd = esp_random() % 160;
+    info.eng_spd = esp_random() % 8000;
+    info.power = (int32_t)(esp_random() % 160 - 60);
+    MockVehicleInfoReceive(&info);
+}
+
 static void Task1000ms(void* arg)
 {
     (void)arg;
     TickType_t last_wake_time = xTaskGetTickCount();
     for (;;) {
         ProcessCanTx();
+        // MockVehicleInfo();
         xTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(1000));
     }
 }

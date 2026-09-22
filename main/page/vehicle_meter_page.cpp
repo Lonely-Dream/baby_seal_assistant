@@ -3,8 +3,9 @@
 #include <inttypes.h>
 
 namespace {
-    constexpr uint32_t kMeterAnimationDurationMs = 1000;
-    constexpr uint32_t kVehicleRefreshPeriodMs = 50;
+    constexpr uint32_t kMaxMeterAnimationDurationMs = 1500;
+    constexpr uint32_t kMinMeterAnimationDurationMs = 100;
+    constexpr uint32_t kVehicleRefreshPeriodMs = 30;
 }
 
 VehicleMeterPage::VehicleMeterPage(const char* page_id, const VehicleMeterPageConfig& config, uint32_t valid_flag)
@@ -22,7 +23,8 @@ void VehicleMeterPage::OnCreate(lv_obj_t* parent)
         config_.max_value,
         config_.major_tick,
         config_.minor_tick,
-        kMeterAnimationDurationMs,
+        kMinMeterAnimationDurationMs,
+        kMaxMeterAnimationDurationMs,
         MeterAnimCallback,
         config_.unit,
         config_.custom_tick_label,

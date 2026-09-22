@@ -14,6 +14,13 @@ static uint32_t GetUpdateTimeMs(void)
     return (uint32_t)(xTaskGetTickCount() * portTICK_PERIOD_MS);
 }
 
+void MockVehicleInfoReceive(const VehicleInfo* info)
+{
+    portENTER_CRITICAL(&g_vehicle_info_lock);
+    g_vehicle_info = *info;
+    portEXIT_CRITICAL(&g_vehicle_info_lock);
+}
+
 bool IsRequiredMessage(uint32_t id)
 {
     switch (id) {
