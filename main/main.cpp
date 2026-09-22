@@ -9,6 +9,7 @@
 #include "page/speed_page.h"
 #include "page/power_page.h"
 #include "page/engine_speed_page.hpp"
+#include "page/heart_page.h"
 #include "esp_random.h"
 
 #define LOG_TAG "main"
@@ -86,9 +87,11 @@ extern "C" void app_main()
     auto* speed_page = new SpeedPage();
     auto* power_page = new PowerPage();
     auto* engine_speed_page = new EngineSpeedPage();
+    auto* heart_page = new HeartPage();
     reg.RegisterPage(speed_page);
     reg.RegisterPage(power_page);
     reg.RegisterPage(engine_speed_page);
+    reg.RegisterPage(heart_page);
 
     reg.SetNavigation(
         speed_page->PAGE_ID,
@@ -110,6 +113,14 @@ extern "C" void app_main()
         engine_speed_page->PAGE_ID,
         ui::PageNavigation{
             .left = { speed_page->PAGE_ID, ui::Direction::Left },
+            .right = { heart_page->PAGE_ID, ui::Direction::Right },
+            .up = { },
+            .down = { },
+        });
+    reg.SetNavigation(
+        heart_page->PAGE_ID,
+        ui::PageNavigation{
+            .left = { engine_speed_page->PAGE_ID, ui::Direction::Left },
             .right = { },
             .up = { },
             .down = { },
