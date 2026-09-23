@@ -26,12 +26,29 @@ static void TaskCanRx(void* arg)
 
 static void MockVehicleInfo()
 {
-    VehicleInfo info;
+    static const int32_t SPEED_RANGE = 160;
+    static const int32_t IC_SPEED_RANGE = 160;
+    static const int32_t ENG_SPEED_RANGE = 8000;
+    static const int32_t POWER_RANGE = 160;
+    static const int32_t SPEED_DELTA = SPEED_RANGE / 5;
+    static const int32_t IC_SPEED_DELTA = IC_SPEED_RANGE / 5;
+    static const int32_t ENG_SPEED_DELTA = ENG_SPEED_RANGE / 5;
+    static const int32_t POWER_DELTA = POWER_RANGE / 5;
+    static VehicleInfo info;
+    static bool first = true;
     info.valid_mask = 0xFFFFFFFF;
-    info.veh_spd = esp_random() % 160;
-    info.ic_veh_spd = esp_random() % 160;
-    info.eng_spd = esp_random() % 8000;
-    info.power = (int32_t)(esp_random() % 160 - 60);
+    if (first) {
+        info.veh_spd = SPEED_RANGE / 2;
+        info.ic_veh_spd = IC_SPEED_RANGE / 2;
+        info.eng_spd = ENG_SPEED_RANGE / 2;
+        info.power = POWER_RANGE / 2;
+        first = false;
+    } else {
+        info.veh_spd += esp_random() % SPEED_DELTA - SPEED_DELTA / 2;
+        info.ic_veh_spd += esp_random() % IC_SPEED_DELTA - IC_SPEED_DELTA / 2;
+        info.eng_spd += esp_random() % ENG_SPEED_DELTA - ENG_SPEED_DELTA / 2;
+        info.power += esp_random() % POWER_DELTA - POWER_DELTA / 2;
+    }
     MockVehicleInfoReceive(&info);
 }
 

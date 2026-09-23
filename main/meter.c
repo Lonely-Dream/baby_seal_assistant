@@ -107,26 +107,26 @@ void MeterInit(Meter* meter, lv_obj_t* parent)
 
 void MeterSetValue(Meter* meter, int32_t value)
 {
-    if (value == meter->value) {
-        return;
-    }
     if (value < meter->cfg.min_value) {
         value = meter->cfg.min_value;
     } else if (value > meter->cfg.max_value) {
         value = meter->cfg.max_value;
     }
-    // 根据变化的幅度计算动画持续时间
-    int64_t value_delta = (int64_t)value - meter->value;
-    if (value_delta < 0) {
-        value_delta = -value_delta;
+    if (value == meter->value) {
+        return;
     }
-    if (value_delta > meter->range) {
-        value_delta = meter->range;
+    // 根据变化的幅度计算动画持续时间
+    int64_t delta = (int64_t)value - meter->value;
+    if (delta < 0) {
+        delta = -delta;
+    }
+    if (delta > meter->range) {
+        delta = meter->range;
     }
     uint32_t anim_duration = Lerp(
         meter->cfg.min_anim_duration, meter->cfg.max_anim_duration,
         0, meter->range,
-        (int32_t)value_delta
+        (int32_t)delta
     );
     lv_anim_set_duration(&meter->anim, anim_duration);
     lv_anim_set_values(&meter->anim, meter->value, value);

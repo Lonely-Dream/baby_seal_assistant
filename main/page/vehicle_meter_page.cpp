@@ -4,9 +4,9 @@
 
 namespace {
     constexpr uint32_t kMeterPageBackgroundColor = 0x111416;//0x1D1A3B
-    constexpr uint32_t kMaxMeterAnimationDurationMs = 1500;
-    constexpr uint32_t kMinMeterAnimationDurationMs = 100;
-    constexpr uint32_t kVehicleRefreshPeriodMs = 30;
+    constexpr uint32_t kMaxMeterAnimationDurationMs = 1800;
+    constexpr uint32_t kMinMeterAnimationDurationMs = 200;
+    constexpr uint32_t kVehicleRefreshPeriodMs = 50;
 }
 
 VehicleMeterPage::VehicleMeterPage(const char* page_id, const VehicleMeterPageConfig& config, uint32_t valid_flag)
